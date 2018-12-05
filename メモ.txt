@@ -1,0 +1,4 @@
+ドキュメントディレクトリの変更
+httpd.confの二か所を変更
+DocumentRoot "C:\Users\nagae\Desktop\theta_three"
+<Directory "C:\Users\nagae\Desktop\theta_three">

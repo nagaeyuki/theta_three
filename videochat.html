@@ -1,0 +1,148 @@
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>WebSocket Signaling 1to1</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <!-- <script type="text/javascriplt" src="videochat.js"></script> -->
+
+    <script type="text/javascript" src="https://cdn.webrtc.ecl.ntt.com/skyway-latest.js"></script>
+    <!-- <script src="three.min.js"></script>
+    <script src="OrbitControls.js"></script> -->
+    
+    <!-- <style type="text/css">
+        a-scene {
+            height: 480px;
+            width: 640px;
+        }
+    </style> -->
+    <!-- <script src="https://aframe.io/releases/0.6.1/aframe.min.js"></script> -->
+
+</head>
+<body>
+    <h1>Simple Video Chat</h1>
+    <div>
+       
+                <video id="my-video" crossorigin="anonymous" autoplay loop style="width: 640px; height: 480px; border: 1px solid black;"></video>
+            
+        <!-- <video id="my-video" style="width: 300px;" autoplay></video> -->
+        <video id="peer-video" style="width: 300px;" autoplay crossorigin="anonymous"></video>   
+                
+    </div>
+    <div>
+        <p>MyID: <span id="my-id">-</span></p>
+        <p>PeerID: <span id="peer-id">-</span></p>
+    </div>
+    <div>
+        <input type="text" placeholder="PeerID" id="peer-id-input">
+        <button id="call-start">Start Call</button>
+        <button id="call-end">End Call</button>
+    </div>
+</body>
+
+<script>
+    
+    // カメラ／マイクにアクセスするためのメソッドを取得しておく
+        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+  
+        var localStream;    // 自分の映像ストリームを保存しておく変数
+        var connectedCall;  // 接続したコールを保存しておく変数
+    var localVideo = document.getElementById('my-video');
+    var remoteVideo = document.getElementById('peer-video');
+        // SkyWayのシグナリングサーバーへ接続する (APIキーを置き換える必要あり）
+        var peer = new Peer({ key: 'bbc390bc-ae38-4188-8056-f447ba09eaf5', debug: 3 });
+
+       peer.on('open', function () {
+            // 自分のIDを表示する
+            // - 自分のIDはpeerオブジェクトのidプロパティに存在する
+            // - 相手はこのIDを指定することで、通話を開始することができる
+            $('#my-id').text(peer.id);
+        });
+
+        // 相手からビデオ通話がかかってきた場合、このcallイベントが呼ばれる
+        // - 渡されるcallオブジェクトを操作することで、ビデオ映像を送受信できる
+        peer.on('call', function (call) {
+
+            // 切断時に利用するため、コールオブジェクトを保存しておく
+            connectedCall = call;
+
+            // 相手のIDを表示する
+            // - 相手のIDはCallオブジェクトのpeerプロパティに存在する
+            $("#peer-id").text(call.peer);
+
+            // 自分の映像ストリームを相手に渡す
+            // - getUserMediaで取得したストリームオブジェクトを指定する
+            call.answer(localStream);
+
+            // 相手のストリームが渡された場合、このstreamイベントが呼ばれる
+            // - 渡されるstreamオブジェクトは相手の映像についてのストリームオブジェクト
+            call.on('stream', function (stream) {
+
+                // 映像ストリームオブジェクトをURLに変換する
+                // - video要素に表示できる形にするため変換している
+                //var url = URL.createObjectURL(stream);
+
+                // video要素のsrcに設定することで、映像を表示する
+                //$('#peer-video').prop('src', url);
+                                remoteVildeo.srcObject = stream;
+
+            });
+        });
+
+        // DOM要素の構築が終わった場合に呼ばれるイベント
+        // - DOM要素に結びつく設定はこの中で行なう
+        $(function () {
+
+            // カメラ／マイクのストリームを取得する
+            // - 取得が完了したら、第二引数のFunctionが呼ばれる。呼び出し時の引数は自身の映像ストリーム
+            // - 取得に失敗した場合、第三引数のFunctionが呼ばれる
+            navigator.getUserMedia({ audio: true, video: true }, function (stream) {
+
+                // このストリームを通話がかかってき場合と、通話をかける場合に利用するため、保存しておく
+                localStream = stream;
+
+                // 映像ストリームオブジェクトをURLに変換する
+                // - video要素に表示できる形にするため変換している
+                //var url = URL.createObjectURL(stream);
+
+                // video要素のsrcに設定することで、映像を表示する
+                localVideo.srcObject = localStream;
+
+//$('#my-video').prop('src', url);
+
+            }, function () { alert("Error!"); });
+
+            // Start Callボタンクリック時の動作
+            $('#call-start').click(function () {
+
+                // 接続先のIDをフォームから取得する
+                var peer_id = $('#peer-id-input').val();
+
+                // 相手と通話を開始して、自分のストリームを渡す
+                var call = peer.call(peer_id, localStream);
+
+                // 相手のストリームが渡された場合、このstreamイベントが呼ばれる
+                // - 渡されるstreamオブジェクトは相手の映像についてのストリームオブジェクト
+                call.on('stream', function (stream) {
+                    // 相手のIDを表示する
+                    $("#peer-id").text(call.peer);
+
+                    // 映像ストリームオブジェクトをURLに変換する
+                    // - video要素に表示できる形にするため変換している
+                    //var url = URL.createObjectURL(stream);
+
+                    // video要素のsrcに設定することで、映像を表示する
+                   // $('#peer-video').prop('src', url);
+                    remoteVideo.srcObject = stream;
+
+                });
+            });
+
+            // End　Callボタンクリック時の動作
+            $('#call-end').click(function () {
+                // ビデオ通話を終了する
+                connectedCall.close();
+            });
+        });
+    </script>
+</html>
