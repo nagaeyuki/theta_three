@@ -236,10 +236,7 @@
             }
       
         }
-
-
-
-           
+   
         var base64 = '';
         var x = [];
         var canvas = document.getElementById('capture');
@@ -252,36 +249,22 @@
                 ctx.rect(x[0], x[1], x[2], x[3]);
                 ctx.stroke();
                 base64 = canvas.toDataURL('image/webp');
-
             }    
-          }
-
-
-
-       
-            let ws = new WebSocket('ws://localhost:3001/');
-            ws.onmessage = function (e) {
-                 //console.log(e.data); 
-            };
-            //ws.onopen = () => ws.send('接続完了');
-                // ws.addEventListener('open', function (e) {
-                //     console.log('Socket 接続成功');
-                // });
-
-                // // サーバーからデータを受け取る
-                // ws.addEventListener('message', function (e) {
-                //     console.log(e.data);
-                // });
-                // //データを送る
-                // ws.send('hello');
-            
-        // //認識
+        }
         var detect = function () {
             ws.send(base64.replace(/^.*,/, ''));
-        //    ws.send("Hello World");
-   
-            //         image: base64.replace(/^.*,/, '')
-          }
+        }
+    
+        let ws = new WebSocket('ws://localhost:3001/');
+        ws.onmessage = function (e) {
+            console.log(e.data);
+            for (var i = 0; i < e.data.split(' ').length; i++) {
+                x[i] = e.data.split(' ')[i] - 0;
+                console.log(x);
+            }
+        };   
+
+        
 
            
         

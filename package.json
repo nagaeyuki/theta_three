@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "encoding-japanese": "^1.0.29",
     "skyway-js": "^1.1.18",
     "ws": "^6.1.2"
   }

@@ -22,8 +22,14 @@ def readb64(base64_string):
     return pimg
 
 def detect():
+    f = open('base64.txt')
+    data1 = f.read()  # ファイル終端まで全て読んだデータを返す
+    f.close()
+    #print(data1)
     # グレースケールでbase64を読み込む
-    image_pil = readb64(sys.argv[1].replace("\\", "\\\\"))
+    image_pil = readb64(data1.replace("\\", "\\\\"))
+
+    # image_pil = readb64(sys.argv[1].replace("\\", "\\\\"))
     image_gray = image_pil.convert('L')
     # NumPyの配列に格納
     image = np.array(image_gray, 'uint8')
@@ -38,9 +44,9 @@ def detect():
     width = image.shape[1]
     
     # print(height)
-    scipy.misc.imsave('outfile.jpg', image)
+    #scipy.misc.imsave('outfile.jpg', image)
 
-    scipy.misc.imsave('outfile2.png', dst)
+    #scipy.misc.imsave('outfile2.png', dst)
     
     # print(dst)
 
