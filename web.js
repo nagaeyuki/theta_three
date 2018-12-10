@@ -25,19 +25,19 @@ wsServer.on('connection', function (ws) {
         exec('python detect_base64.py "' + path + '"', { encoding: 'Shift_JIS', maxBuffer: 400 * 1024}, function (error, stdout, stderr) {
             if (stdout !== null) {
                 var message = stdout.toString();
-                console.log(message);
+                console.log("顔座標: " + message);
                 ws.send(message);
             }
             if (stderr !== null) {
-                console.log('stderr: ' + stderr);
+                //console.log('stderr: ' + stderr);
             }
             if (error !== null) {
-                console.log('Exec error: ' + error);
+                //console.log('Exec error: ' + error);
             }
             
         });
         wsServer.clients.forEach(function each(client) {
-            //client.send(message);
+           //client.send(message);
         });
     });
 });

@@ -82,7 +82,13 @@
                 });
             });
 
-
+    let ws = new WebSocket('ws://localhost:3001/');
+    ws.onopen = function (evt) {
+            console.log('ws open()');
+        };
+        ws.onerror = function (err) {
+            console.error('ws onerror() ERR:', err);
+        };
     // ローカルビデオをスタートさせる
     function startVideo() {
         // navigator.mediaDevices.getUserMedia({ video: true, audio: false })
@@ -183,7 +189,7 @@
 
       
             setInterval("capture()", 1000);
-        setInterval("detect()", 1000);
+            setInterval("detect()", 1000);
 
             function render() {
                 requestAnimationFrame(render);
@@ -238,7 +244,8 @@
         }
    
         var base64 = '';
-        var x = [];
+        var Coordinate = [];
+        
         var canvas = document.getElementById('capture');
         var ctx = canvas.getContext('2d');
         // カメラ画像キャプチャ
@@ -246,28 +253,29 @@
             if (localStream) {
                 ctx.drawImage(localVideo, 0, 0);
                 ctx.beginPath();
-                ctx.rect(x[0], x[1], x[2], x[3]);
+                for(var i=0; i < Coordinate.length; i+=4){
+                    ctx.rect(Coordinate[i], Coordinate[i+1], Coordinate[i+2], Coordinate[i+3]);
+                }
                 ctx.stroke();
-                base64 = canvas.toDataURL('image/webp');
             }    
         }
         var detect = function () {
+            base64 = canvas.toDataURL('image/webp');
             ws.send(base64.replace(/^.*,/, ''));
         }
     
-        let ws = new WebSocket('ws://localhost:3001/');
+        
+        var perCoordinate=[];
         ws.onmessage = function (e) {
-            console.log(e.data);
-            for (var i = 0; i < e.data.split(' ').length; i++) {
-                x[i] = e.data.split(' ')[i] - 0;
-                console.log(x);
+            var str = e.data.replace(/\r?\n/g, ' ');
+            var length = str.split(' ').length - 1;
+            for (var i = 0; i < str.split(' ').length-1; i++) {
+                Coordinate[i] = str.split(' ')[i];
             }
-        };   
-
-        
-
-           
-        
+            Coordinate.length= length;
+            console.log(Coordinate);
+//            console.log(Coordinate);
+        };
     </script>
 </body>
 
