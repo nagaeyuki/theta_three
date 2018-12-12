@@ -24,9 +24,12 @@ wsServer.on('connection', function (ws) {
 
         exec('python detect_base64.py "' + path + '"', { encoding: 'Shift_JIS', maxBuffer: 400 * 1024}, function (error, stdout, stderr) {
             if (stdout !== null) {
-                var message = stdout.toString();
-                console.log("顔座標: " + message);
-                ws.send(message);
+                if (ws.readyState == 1) {
+                    var message = stdout.toString();
+                    console.log("顔座標: " + message);
+                    ws.send(message);
+                }
+               
             }
             if (stderr !== null) {
                 //console.log('stderr: ' + stderr);

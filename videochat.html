@@ -8,7 +8,7 @@
     <!-- <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script> -->
     <script type="text/javascript" src="https://cdn.webrtc.ecl.ntt.com/skyway-latest.js"></script>
     <script src="three.min.js"></script>
-    <script src="OrbitControls.js"></script>
+    <!-- <script src="OrbitControls.js"></script> -->
     
   
 </head>
@@ -17,8 +17,8 @@
     <div>
         <button class="btn btn-lg btn-success" onclick="startVideo()">Start</button>
         <div id="stage"></div>
-        <canvas id="capture" style="display:true;" width="640" height="480"></canvas>
-        <video id="my-video" crossorigin="anonymous" autoplay loop style="width: 640px; height: 480px; border: 1px solid black;"></video>
+        <canvas id="capture" style="display:true;" width="1920" height="960"></canvas>
+        <video id="my-video" crossorigin="anonymous" autoplay loop style="width: 640px; height: 320px; border: 1px solid black;"></video>
         <video id="peer-video" style="width: 300px;" autoplay crossorigin="anonymous"></video>                   
     </div>
     <div>
@@ -33,15 +33,16 @@
     <script>
        
             var width = 640;
-            var height = 480;
+            var height = 320;
             var element;
             var scene, camera, renderer, controls, texture;
             scene = new THREE.Scene();
             // リサイズイベントを検知してリサイズ処理を実行
             //window.addEventListener("resize", handleResize, false);
             // カメラの作成
-            camera = new THREE.PerspectiveCamera(75, width / height, 1, 1000);
+            camera = new THREE.PerspectiveCamera(100, width / height, 1, 1000);
             camera.position.set(0, 0, 0.1);
+            // camera.rotation.x=50;
             scene.add(camera);
             // 球体の形状を作成
             var geometry = new THREE.SphereGeometry(5, 60, 40);
@@ -78,7 +79,7 @@
                 // 相手のストリームが渡された場合、このstreamイベントが呼ばれる
                 // - 渡されるstreamオブジェクトは相手の映像についてのストリームオブジェクト
                 call.on('stream', function (stream) {
-                    remoteVildeo.srcObject = stream;
+                    remoteVideo.srcObject = stream;
                 });
             });
 
@@ -90,7 +91,7 @@
             console.error('ws onerror() ERR:', err);
         };
     // ローカルビデオをスタートさせる
-    function startVideo() {
+    // function startVideo() {
         // navigator.mediaDevices.getUserMedia({ video: true, audio: false })
         //     .then(function (stream) { // success
         //         localStream = stream;
@@ -107,10 +108,12 @@
             // カメラ／マイクのストリームを取得する
             // - 取得が完了したら、第二引数のFunctionが呼ばれる。呼び出し時の引数は自身の映像ストリーム
             // - 取得に失敗した場合、第三引数のFunctionが呼ばれる
-            navigator.getUserMedia({ audio: true, video: true }, function (stream) {
+            navigator.getUserMedia({ audio: true, video: { width: 1920, height: 960 } }, function (stream) {
                 // このストリームを通話がかかってき場合と、通話をかける場合に利用するため、保存しておく
                 localStream = stream;
                 localVideo.srcObject = localStream;
+                
+                
             }, function () { alert("Error!"); });
 
             // Start Callボタンクリック時の動作
@@ -162,6 +165,9 @@
 
             // element.setAttribute("id", "canvas");
             document.getElementById("stage").appendChild(element);
+
+                        //camera.lookAt({ x: 0, y: 0, z: 0 });
+    //camera.lookAt(new THREE.Vector3(0, 0, 0));
             renderer.render(scene, camera);
            
             // デバイスの判別
@@ -181,7 +187,7 @@
             } else {
                 // パソコンの場合
                 // マウスドラッグで視点操作を可能にする
-                setOrbitControls();
+                //setOrbitControls();
             }
 
             render();
@@ -194,7 +200,7 @@
             function render() {
                 requestAnimationFrame(render);
                 renderer.render(scene, camera);
-                controls.update();
+                //controls.update();
             }
 
 
@@ -209,25 +215,25 @@
 
             }
 
-            function setOrbitControls() {
-                // パソコン閲覧時マウスドラッグで視点操作する
-                controls = new THREE.OrbitControls(camera, element);
-                controls.target.set(
-                    camera.position.x + 0.15,
-                    camera.position.y,
-                    camera.position.z
-                );
-                // 視点操作のイージングをONにする
-                controls.enableDamping = true;
-                // 視点操作のイージングの値
-                controls.dampingFactor = 0.2;
-                // 視点変更の速さ
-                controls.rotateSpeed = 0.1;
-                // ズーム禁止
-                controls.noZoom = true;
-                // パン操作禁止
-                controls.noPan = true;
-            }
+            // function setOrbitControls() {
+            //     // パソコン閲覧時マウスドラッグで視点操作する
+            //     controls = new THREE.OrbitControls(camera, element);
+            //     controls.target.set(
+            //         camera.position.x + 0.15,
+            //         camera.position.y,
+            //         camera.position.z
+            //     );
+            //     // 視点操作のイージングをONにする
+            //     controls.enableDamping = true;
+            //     // 視点操作のイージングの値
+            //     controls.dampingFactor = 0.2;
+            //     // 視点変更の速さ
+            //     controls.rotateSpeed = 0.1;
+            //     // ズーム禁止
+            //     controls.noZoom = true;
+            //     // パン操作禁止
+            //     controls.noPan = true;
+            // }
 
             // ジャイロセンサーで視点操作する
             function setOrientationControls(e) {
@@ -241,7 +247,7 @@
                 window.removeEventListener("deviceorientation", setOrientationControls, true);
             }
       
-        }
+        // }
    
         var base64 = '';
         var Coordinate = [];
@@ -275,6 +281,7 @@
             Coordinate.length= length;
             console.log(Coordinate);
 //            console.log(Coordinate);
+            
         };
     </script>
 </body>
